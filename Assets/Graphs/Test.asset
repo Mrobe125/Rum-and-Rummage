@@ -360,11 +360,11 @@ MonoBehaviour:
       _connectionType: 1
       _typeConstraint: 0
       _dynamic: 1
-  dialogueSpoken: 'Give it your best shot it may open that door.
+  dialogueSpoken: 'Give it your best shot it may open that Chest over there.
 
 
-    Press [E]
-    to exit
+    Press
+    [E] to exit
 
 
 '
