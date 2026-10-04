@@ -2642,8 +2642,8 @@ MonoBehaviour:
   hookPoint: {fileID: 1850389561}
   hookPrefab: {fileID: 721594630177144642, guid: c2e0b3348937297469ebc4743aebda19, type: 3}
   hookHeld: {fileID: 1215156372}
+  throwKey: 323
   throwForce: 15
-  throwAction: {fileID: 1120369429361536294, guid: 052faaac586de48259a63d0c4782560b, type: 3}
 --- !u!114 &775261290
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2809,9 +2809,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   attackAction: {fileID: 1120369429361536294, guid: 052faaac586de48259a63d0c4782560b, type: 3}
-  equipmentSwitching: {fileID: 0}
   weaponAttack: {fileID: 775261296}
-  hookThrow: {fileID: 0}
 --- !u!114 &775261298
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2824,10 +2822,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 368c864bacf99954da78cf4f64c3f0db, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  weaponSlot: {fileID: 1850389560}
-  hookSlot: {fileID: 1919761164}
-  weaponAction: {fileID: 1120369429361536294, guid: 052faaac586de48259a63d0c4782560b, type: 3}
-  hookAction: {fileID: 1120369429361536294, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  sword: {fileID: 1919761164}
+  hook: {fileID: 1850389560}
+  playerCombat: {fileID: 775261297}
+  hookThrow: {fileID: 775261289}
   swapAction: {fileID: -5994369374948545564, guid: 052faaac586de48259a63d0c4782560b, type: 3}
 --- !u!1 &806102966
 GameObject:

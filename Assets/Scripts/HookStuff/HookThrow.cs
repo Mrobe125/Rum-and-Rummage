@@ -11,10 +11,10 @@ public class HookThrow : MonoBehaviour
 
   private bool hasThrown = false;
 
-  private void Start()
-  {
-    hookHeld.SetActive(true);
-  }
+  //private void Start()
+  //{
+  //  hookHeld.SetActive(true);
+  //}
 
   private void Update()
   {

@@ -23,6 +23,9 @@ public class PlayerCombat : MonoBehaviour
 
     private void OnAttack(InputAction.CallbackContext context)
     {
+        if (weaponAttack == null)
+            return;
+
         if (Time.time < nextAttackTime)
             return;
 

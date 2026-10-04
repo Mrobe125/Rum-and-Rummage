@@ -2,68 +2,70 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class EquipmentSwitching : MonoBehaviour
+public class EquipmentSwap : MonoBehaviour
 {
-    [Header("Equipment Slots")]
-    [SerializeField] private GameObject weaponSlot;
-    [SerializeField] private GameObject hookSlot;
+    [Header("Equipment")]
+    [SerializeField] private GameObject sword;
+    [SerializeField] private GameObject hook;
+
+    [Header("Combat")]
+    [SerializeField] private PlayerCombat playerCombat;
+    [SerializeField] private HookThrow hookThrow;
 
     [Header("Input")]
-    [SerializeField] private InputActionReference weaponAction;
-    [SerializeField] private InputActionReference hookAction;
     [SerializeField] private InputActionReference swapAction;
 
-    private int currentSlot = 1;
-
-    public int CurrentSlot => currentSlot;
+    private bool hookEquipped;
 
     private void OnEnable()
     {
-        weaponAction.action.Enable();
-        hookAction.action.Enable();
         swapAction.action.Enable();
-
-        weaponAction.action.performed += EquipWeapon;
-        hookAction.action.performed += EquipHook;
-        swapAction.action.performed += SwapEquipment;
+        swapAction.action.performed += OnSwap;
     }
 
     private void OnDisable()
     {
-        weaponAction.action.performed -= EquipWeapon;
-        hookAction.action.performed -= EquipHook;
-        swapAction.action.performed -= SwapEquipment;
-
-        weaponAction.action.Disable();
-        hookAction.action.Disable();
+        swapAction.action.performed -= OnSwap;
         swapAction.action.Disable();
     }
 
     private void Start()
     {
-        EquipSlot(1);
+        EquipSword();
     }
 
-    private void EquipWeapon(InputAction.CallbackContext context)
+    private void OnSwap(InputAction.CallbackContext context)
     {
-        EquipSlot(1);
+        SwapEquipment();
     }
 
-    private void EquipHook(InputAction.CallbackContext context)
+    public void SwapEquipment()
     {
-        EquipSlot(2);
+        if (hookEquipped)
+            EquipSword();
+        else
+            EquipHook();
     }
 
-    private void SwapEquipment(InputAction.CallbackContext context)
+    private void EquipSword()
     {
-        EquipSlot(currentSlot == 1 ? 2 : 1);
+        hookEquipped = false;
+
+        sword.SetActive(true);
+        hook.SetActive(false);
+
+        playerCombat.enabled = true;
+        hookThrow.enabled = false;
     }
 
-    private void EquipSlot(int slot)
+    private void EquipHook()
     {
-        currentSlot = slot;
+        hookEquipped = true;
 
-        weaponSlot.SetActive(currentSlot == 1);
-        hookSlot.SetActive(currentSlot == 2);
+        sword.SetActive(false);
+        hook.SetActive(true);
+
+        playerCombat.enabled = false;
+        hookThrow.enabled = true;
     }
 }
