@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using TMPro;
+using System.Collections;
 
 public class PlayerInteraction : MonoBehaviour
 {
@@ -18,14 +19,18 @@ public class PlayerInteraction : MonoBehaviour
 
     [Header("Dependencies")]
     [SerializeField] private Inventory playerInventory;
+    [SerializeField] private PillarPuzzleManager pillarPuzzleManager;
 
     private ItemObject currentItemTarget;
     private PuzzleReceptor currentReceptorTarget;
+    private Pillar currentPillarTarget;
 
     private void Awake()
     {
         if (playerCamera == null) playerCamera = Camera.main;
         if (playerInventory == null) playerInventory = GetComponent<Inventory>();
+        if (pillarPuzzleManager == null) pillarPuzzleManager = FindFirstObjectByType<PillarPuzzleManager>();
+
         SetUIVisible(false);
     }
 
@@ -54,7 +59,6 @@ public class PlayerInteraction : MonoBehaviour
 
     private void OnInteract(InputAction.CallbackContext context)
     {
-        // 1. Debug input detection
         Debug.Log("[PlayerInteraction] Interact input key pressed!");
         ExecuteInteraction();
     }
@@ -65,39 +69,55 @@ public class PlayerInteraction : MonoBehaviour
 
         if (Physics.Raycast(ray, out RaycastHit hit, interactDistance, interactableLayer))
         {
-            // Check for Item Pickups
+            // 1. Check for Item Pickups
             if (hit.collider.TryGetComponent(out ItemObject itemObject))
             {
                 if (itemObject.Data != null)
                 {
-                    // Log only when target changes to prevent spamming Update logs every frame
                     if (currentItemTarget != itemObject)
                     {
-                        Debug.Log($"[PlayerInteraction] Raycast looking at interactable item: {itemObject.gameObject.name} ({itemObject.Data.itemName})");
+                        Debug.Log($"[PlayerInteraction] Looking at item: {itemObject.gameObject.name} ({itemObject.Data.itemName})");
                     }
 
                     currentItemTarget = itemObject;
                     currentReceptorTarget = null;
+                    currentPillarTarget = null;
                     ShowUI($"{interactPromptText} ({itemObject.Data.itemName})");
                     return;
                 }
             }
 
-            // Check for Puzzle Receptors
+            // 2. Check for Puzzle Receptors
             if (hit.collider.TryGetComponent(out PuzzleReceptor receptor))
             {
                 if (!receptor.IsSolved)
                 {
                     if (currentReceptorTarget != receptor)
                     {
-                        Debug.Log($"[PlayerInteraction] Raycast looking at receptor: {receptor.gameObject.name}");
+                        Debug.Log($"[PlayerInteraction] Looking at receptor: {receptor.gameObject.name}");
                     }
 
                     currentReceptorTarget = receptor;
                     currentItemTarget = null;
+                    currentPillarTarget = null;
                     ShowUI(receptor.GetPromptText());
                     return;
                 }
+            }
+
+            // 3. Check for Pillars
+            if (hit.collider.TryGetComponent(out Pillar pillar))
+            {
+                if (currentPillarTarget != pillar)
+                {
+                    Debug.Log($"[PlayerInteraction] Looking at pillar: {pillar.gameObject.name}");
+                }
+
+                currentPillarTarget = pillar;
+                currentItemTarget = null;
+                currentReceptorTarget = null;
+                ShowUI(pillar.GetPromptText());
+                return;
             }
         }
 
@@ -110,21 +130,17 @@ public class PlayerInteraction : MonoBehaviour
         if (currentItemTarget != null)
         {
             ItemObject targetToPickUp = currentItemTarget;
-
-            // 2. Debug attempted grab
             Debug.Log($"[PlayerInteraction] Attempting to pick up object: {targetToPickUp.gameObject.name}");
 
             if (playerInventory != null && playerInventory.AddItem(targetToPickUp.Data))
             {
-                // 3. Debug pickup success
                 Debug.Log($"[PlayerInteraction] SUCCESS: Successfully picked up {targetToPickUp.Data.itemName}!");
                 ClearTargets();
                 targetToPickUp.OnPickup();
             }
             else
             {
-                // 3. Debug pickup failure
-                Debug.LogWarning($"[PlayerInteraction] FAILED: Could not pick up {targetToPickUp.Data.itemName}. Check if Inventory reference is missing or full.");
+                Debug.LogWarning($"[PlayerInteraction] FAILED: Could not pick up {targetToPickUp.Data.itemName}. Check if Inventory reference is missing.");
             }
             return;
         }
@@ -146,7 +162,39 @@ public class PlayerInteraction : MonoBehaviour
             return;
         }
 
-        Debug.Log("[PlayerInteraction] Interact pressed, but no target object or receptor was found in range.");
+        // Handle Pillar Rotation
+        if (currentPillarTarget != null)
+        {
+            if (currentPillarTarget.IsRotating)
+            {
+                Debug.Log("[PlayerInteraction] Pillar is currently rotating. Wait until movement finishes.");
+                return;
+            }
+
+            Debug.Log($"[PlayerInteraction] Rotating pillar: {currentPillarTarget.gameObject.name}");
+            Pillar rotatedPillar = currentPillarTarget;
+            rotatedPillar.Interact();
+
+            if (pillarPuzzleManager != null)
+            {
+                StartCoroutine(ValidatePuzzleAfterRotation(rotatedPillar));
+            }
+
+            return;
+        }
+
+        Debug.Log("[PlayerInteraction] Interact pressed, but no target was found in range.");
+    }
+
+    private IEnumerator ValidatePuzzleAfterRotation(Pillar pillar)
+    {
+        // Wait until pillar completes its rotation coroutine before checking puzzle state
+        yield return new WaitUntil(() => !pillar.IsRotating);
+
+        if (pillarPuzzleManager != null)
+        {
+            pillarPuzzleManager.CheckPuzzleState();
+        }
     }
 
     private void ShowUI(string text)
@@ -162,6 +210,7 @@ public class PlayerInteraction : MonoBehaviour
     {
         currentItemTarget = null;
         currentReceptorTarget = null;
+        currentPillarTarget = null;
         SetUIVisible(false);
     }
 
