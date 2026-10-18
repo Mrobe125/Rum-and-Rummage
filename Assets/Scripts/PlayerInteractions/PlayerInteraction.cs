@@ -34,16 +34,22 @@ public class PlayerInteraction : MonoBehaviour
 
     private void OnEnable()
     {
-        if (interactAction != null)
+        if (interactAction != null && interactAction.action != null)
         {
+            // Enable the entire Action Map if available, as well as the action itself
+            interactAction.action.actionMap?.Enable();
             interactAction.action.Enable();
             interactAction.action.performed += OnInteract;
+        }
+        else
+        {
+            Debug.LogError("PlayerInteraction: Interact Action Reference is missing or unassigned in the Inspector!", this);
         }
     }
 
     private void OnDisable()
     {
-        if (interactAction != null)
+        if (interactAction != null && interactAction.action != null)
         {
             interactAction.action.performed -= OnInteract;
             interactAction.action.Disable();
@@ -63,6 +69,14 @@ public class PlayerInteraction : MonoBehaviour
         {
             if (hit.collider.TryGetComponent(out ItemObject itemObject))
             {
+                if (itemObject.Data == null)
+                {
+                    Debug.LogWarning($"PlayerInteraction: ItemObject '{itemObject.name}' is missing an ItemData asset!", itemObject);
+                    currentTarget = null;
+                    SetUIVisible(false);
+                    return;
+                }
+
                 currentTarget = itemObject;
                 if (interactUI != null)
                 {
@@ -77,16 +91,21 @@ public class PlayerInteraction : MonoBehaviour
         SetUIVisible(false);
     }
 
-    private void OnInteract(InputAction.CallbackContext context)
+    public void OnInteract(InputAction.CallbackContext context)
     {
-        if (currentTarget != null)
+        if (currentTarget == null) return;
+
+        if (playerInventory == null)
         {
-            if (playerInventory.AddItem(currentTarget.Data))
-            {
-                currentTarget.OnPickup();
-                currentTarget = null;
-                SetUIVisible(false);
-            }
+            Debug.LogError("PlayerInteraction: Inventory component is missing on the player!", this);
+            return;
+        }
+
+        if (playerInventory.AddItem(currentTarget.Data))
+        {
+            currentTarget.OnPickup();
+            currentTarget = null;
+            SetUIVisible(false);
         }
     }
 
