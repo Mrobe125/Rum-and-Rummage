@@ -13,45 +13,39 @@ public class PlayerInteraction : MonoBehaviour
     [SerializeField] private TextMeshProUGUI interactUI;
     [SerializeField] private string interactPromptText = "Press E to Interact";
 
-    [Header("Input")]
+    [Header("Input Setup")]
     [SerializeField] private InputActionReference interactAction;
+    [SerializeField] private bool useDirectKey = false;
+    [SerializeField] private KeyCode interactKey = KeyCode.E;
 
     [Header("Dependencies")]
     [SerializeField] private Inventory playerInventory;
 
-    private ItemObject currentTarget;
+    private ItemObject currentItemTarget;
+    private PuzzleReceptor currentReceptorTarget;
 
     private void Awake()
     {
-        if (playerCamera == null)
-            playerCamera = Camera.main;
-
-        if (playerInventory == null)
-            playerInventory = GetComponent<Inventory>();
-
+        if (playerCamera == null) playerCamera = Camera.main;
+        if (playerInventory == null) playerInventory = GetComponent<Inventory>();
         SetUIVisible(false);
     }
 
     private void OnEnable()
     {
-        if (interactAction != null && interactAction.action != null)
+        if (!useDirectKey && interactAction != null && interactAction.action != null)
         {
-            // Enable the entire Action Map if available, as well as the action itself
             interactAction.action.actionMap?.Enable();
             interactAction.action.Enable();
-            interactAction.action.performed += OnInteract;
-        }
-        else
-        {
-            Debug.LogError("PlayerInteraction: Interact Action Reference is missing or unassigned in the Inspector!", this);
+            interactAction.action.performed += OnInteractInput;
         }
     }
 
     private void OnDisable()
     {
-        if (interactAction != null && interactAction.action != null)
+        if (!useDirectKey && interactAction != null && interactAction.action != null)
         {
-            interactAction.action.performed -= OnInteract;
+            interactAction.action.performed -= OnInteractInput;
             interactAction.action.Disable();
         }
     }
@@ -59,6 +53,11 @@ public class PlayerInteraction : MonoBehaviour
     private void Update()
     {
         DetectInteractable();
+
+        if (useDirectKey && Input.GetKeyDown(interactKey))
+        {
+            ExecuteInteraction();
+        }
     }
 
     private void DetectInteractable()
@@ -67,46 +66,77 @@ public class PlayerInteraction : MonoBehaviour
 
         if (Physics.Raycast(ray, out RaycastHit hit, interactDistance, interactableLayer))
         {
+            // 1. Check for Item Pickups
             if (hit.collider.TryGetComponent(out ItemObject itemObject))
             {
-                if (itemObject.Data == null)
+                if (itemObject.Data != null)
                 {
-                    Debug.LogWarning($"PlayerInteraction: ItemObject '{itemObject.name}' is missing an ItemData asset!", itemObject);
-                    currentTarget = null;
-                    SetUIVisible(false);
+                    currentItemTarget = itemObject;
+                    currentReceptorTarget = null;
+                    ShowUI($"{interactPromptText} ({itemObject.Data.itemName})");
                     return;
                 }
+            }
 
-                currentTarget = itemObject;
-                if (interactUI != null)
+            // 2. Check for Puzzle Receptors
+            if (hit.collider.TryGetComponent(out PuzzleReceptor receptor))
+            {
+                if (!receptor.IsSolved)
                 {
-                    interactUI.text = $"{interactPromptText} ({itemObject.Data.itemName})";
+                    currentReceptorTarget = receptor;
+                    currentItemTarget = null;
+                    ShowUI(receptor.GetPromptText());
+                    return;
                 }
-                SetUIVisible(true);
-                return;
             }
         }
 
-        currentTarget = null;
-        SetUIVisible(false);
+        ClearTargets();
     }
 
-    public void OnInteract(InputAction.CallbackContext context)
+    public void OnInteractInput(InputAction.CallbackContext context)
     {
-        if (currentTarget == null) return;
+        ExecuteInteraction();
+    }
 
-        if (playerInventory == null)
+    private void ExecuteInteraction()
+    {
+        // Handle Item Pickup
+        if (currentItemTarget != null)
         {
-            Debug.LogError("PlayerInteraction: Inventory component is missing on the player!", this);
+            if (playerInventory.AddItem(currentItemTarget.Data))
+            {
+                ItemObject target = currentItemTarget;
+                ClearTargets();
+                target.OnPickup();
+            }
             return;
         }
 
-        if (playerInventory.AddItem(currentTarget.Data))
+        // Handle Puzzle Placement
+        if (currentReceptorTarget != null)
         {
-            currentTarget.OnPickup();
-            currentTarget = null;
-            SetUIVisible(false);
+            if (currentReceptorTarget.TryActivate(playerInventory))
+            {
+                ClearTargets();
+            }
         }
+    }
+
+    private void ShowUI(string text)
+    {
+        if (interactUI != null)
+        {
+            interactUI.text = text;
+            interactUI.gameObject.SetActive(true);
+        }
+    }
+
+    private void ClearTargets()
+    {
+        currentItemTarget = null;
+        currentReceptorTarget = null;
+        SetUIVisible(false);
     }
 
     private void SetUIVisible(bool visible)

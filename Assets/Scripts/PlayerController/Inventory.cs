@@ -15,4 +15,20 @@ public class Inventory : MonoBehaviour
         Debug.Log($"Added {item.itemName} to inventory. Total items: {items.Count}");
         return true;
     }
+
+    public bool HasItem(ItemData item)
+    {
+        return items.Contains(item);
+    }
+
+    public bool RemoveItem(ItemData item)
+    {
+        if (items.Contains(item))
+        {
+            items.Remove(item);
+            Debug.Log($"Removed {item.itemName} from inventory. Remaining: {items.Count}");
+            return true;
+        }
+        return false;
+    }
 }
