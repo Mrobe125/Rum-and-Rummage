@@ -2078,11 +2078,12 @@ MonoBehaviour:
   returnClick: 324
   speed: 15
   squackSound: {fileID: 8300000, guid: c330fc4f4c018f249a6110861be21efb, type: 3}
-  playerInventory: {fileID: 775261299}
-  searchRadius: 15
+  raycastOrigin: {fileID: 505813763}
+  raycastDistance: 25
   itemLayer:
     serializedVersion: 2
     m_Bits: 128
+  playerInventory: {fileID: 775261299}
 --- !u!65 &477270572
 BoxCollider:
   m_ObjectHideFlags: 0

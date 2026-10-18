@@ -7,10 +7,13 @@ public class Parrot : MonoBehaviour
     public float speed = 15f;
     public AudioClip squackSound;
 
-    [Header("Item Retrieval")]
-    [SerializeField] private Inventory playerInventory;
-    [SerializeField] private float searchRadius = 10f;
+    [Header("Item Raycast Settings")]
+    [SerializeField] private Transform raycastOrigin; // Assign Player Camera here
+    [SerializeField] private float raycastDistance = 15f;
     [SerializeField] private LayerMask itemLayer;
+
+    [Header("Dependencies")]
+    [SerializeField] private Inventory playerInventory;
 
     private Transform player;
     private Vector3 startPos;
@@ -29,6 +32,11 @@ public class Parrot : MonoBehaviour
         player = transform.parent;
         startPos = transform.localPosition;
         startRot = transform.localRotation;
+
+        if (raycastOrigin == null && Camera.main != null)
+        {
+            raycastOrigin = Camera.main.transform;
+        }
 
         if (playerInventory == null && player != null)
         {
@@ -72,8 +80,8 @@ public class Parrot : MonoBehaviour
                 return;
             }
 
-            // 2. If no hook active, look for a nearby item that the parrot can carry
-            ItemObject targetItem = FindNearestFetchableItem();
+            // 2. If no hook active, raycast for a fetchable item
+            ItemObject targetItem = GetLookedAtFetchableItem();
             if (targetItem != null)
             {
                 carriedItem = targetItem;
@@ -84,29 +92,24 @@ public class Parrot : MonoBehaviour
         }
     }
 
-    private ItemObject FindNearestFetchableItem()
+    private ItemObject GetLookedAtFetchableItem()
     {
-        Collider[] hits = Physics.OverlapSphere(player.position, searchRadius, itemLayer);
-        ItemObject nearest = null;
-        float minDistance = float.MaxValue;
+        if (raycastOrigin == null) return null;
 
-        foreach (Collider hit in hits)
+        Ray ray = new Ray(raycastOrigin.position, raycastOrigin.forward);
+
+        if (Physics.Raycast(ray, out RaycastHit hit, raycastDistance, itemLayer))
         {
-            if (hit.TryGetComponent(out ItemObject item) && item.Data != null)
+            if (hit.collider.TryGetComponent(out ItemObject item) && item.Data != null)
             {
                 if (item.Data.canBePickedUpByParrot)
                 {
-                    float dist = Vector3.Distance(transform.position, item.transform.position);
-                    if (dist < minDistance)
-                    {
-                        minDistance = dist;
-                        nearest = item;
-                    }
+                    return item;
                 }
             }
         }
 
-        return nearest;
+        return null;
     }
 
     private void GoingToHook()
@@ -200,6 +203,15 @@ public class Parrot : MonoBehaviour
         if (audioSource != null && squackSound != null)
         {
             audioSource.PlayOneShot(squackSound);
+        }
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        if (raycastOrigin != null)
+        {
+            Gizmos.color = Color.cyan;
+            Gizmos.DrawRay(raycastOrigin.position, raycastOrigin.forward * raycastDistance);
         }
     }
 }
