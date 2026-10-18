@@ -94,6 +94,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "OnInteract",
+                    "type": "Button",
+                    "id": "b9113efb-e96c-4341-8bcc-3ecf1b67c603",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -490,6 +499,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "SwapEquipment",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "80a1970c-5f3e-4571-a062-800e6bfaad0c",
+                    "path": "<Keyboard>/e",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "OnInteract",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

@@ -15,8 +15,6 @@ public class PlayerInteraction : MonoBehaviour
 
     [Header("Input Setup")]
     [SerializeField] private InputActionReference interactAction;
-    [SerializeField] private bool useDirectKey = false;
-    [SerializeField] private KeyCode interactKey = KeyCode.E;
 
     [Header("Dependencies")]
     [SerializeField] private Inventory playerInventory;
@@ -33,19 +31,18 @@ public class PlayerInteraction : MonoBehaviour
 
     private void OnEnable()
     {
-        if (!useDirectKey && interactAction != null && interactAction.action != null)
+        if (interactAction != null && interactAction.action != null)
         {
-            interactAction.action.actionMap?.Enable();
             interactAction.action.Enable();
-            interactAction.action.performed += OnInteractInput;
+            interactAction.action.performed += OnInteract;
         }
     }
 
     private void OnDisable()
     {
-        if (!useDirectKey && interactAction != null && interactAction.action != null)
+        if (interactAction != null && interactAction.action != null)
         {
-            interactAction.action.performed -= OnInteractInput;
+            interactAction.action.performed -= OnInteract;
             interactAction.action.Disable();
         }
     }
@@ -53,11 +50,13 @@ public class PlayerInteraction : MonoBehaviour
     private void Update()
     {
         DetectInteractable();
+    }
 
-        if (useDirectKey && Input.GetKeyDown(interactKey))
-        {
-            ExecuteInteraction();
-        }
+    private void OnInteract(InputAction.CallbackContext context)
+    {
+        // 1. Debug input detection
+        Debug.Log("[PlayerInteraction] Interact input key pressed!");
+        ExecuteInteraction();
     }
 
     private void DetectInteractable()
@@ -66,11 +65,17 @@ public class PlayerInteraction : MonoBehaviour
 
         if (Physics.Raycast(ray, out RaycastHit hit, interactDistance, interactableLayer))
         {
-            // 1. Check for Item Pickups
+            // Check for Item Pickups
             if (hit.collider.TryGetComponent(out ItemObject itemObject))
             {
                 if (itemObject.Data != null)
                 {
+                    // Log only when target changes to prevent spamming Update logs every frame
+                    if (currentItemTarget != itemObject)
+                    {
+                        Debug.Log($"[PlayerInteraction] Raycast looking at interactable item: {itemObject.gameObject.name} ({itemObject.Data.itemName})");
+                    }
+
                     currentItemTarget = itemObject;
                     currentReceptorTarget = null;
                     ShowUI($"{interactPromptText} ({itemObject.Data.itemName})");
@@ -78,11 +83,16 @@ public class PlayerInteraction : MonoBehaviour
                 }
             }
 
-            // 2. Check for Puzzle Receptors
+            // Check for Puzzle Receptors
             if (hit.collider.TryGetComponent(out PuzzleReceptor receptor))
             {
                 if (!receptor.IsSolved)
                 {
+                    if (currentReceptorTarget != receptor)
+                    {
+                        Debug.Log($"[PlayerInteraction] Raycast looking at receptor: {receptor.gameObject.name}");
+                    }
+
                     currentReceptorTarget = receptor;
                     currentItemTarget = null;
                     ShowUI(receptor.GetPromptText());
@@ -94,21 +104,27 @@ public class PlayerInteraction : MonoBehaviour
         ClearTargets();
     }
 
-    public void OnInteractInput(InputAction.CallbackContext context)
-    {
-        ExecuteInteraction();
-    }
-
     private void ExecuteInteraction()
     {
         // Handle Item Pickup
         if (currentItemTarget != null)
         {
-            if (playerInventory.AddItem(currentItemTarget.Data))
+            ItemObject targetToPickUp = currentItemTarget;
+
+            // 2. Debug attempted grab
+            Debug.Log($"[PlayerInteraction] Attempting to pick up object: {targetToPickUp.gameObject.name}");
+
+            if (playerInventory != null && playerInventory.AddItem(targetToPickUp.Data))
             {
-                ItemObject target = currentItemTarget;
+                // 3. Debug pickup success
+                Debug.Log($"[PlayerInteraction] SUCCESS: Successfully picked up {targetToPickUp.Data.itemName}!");
                 ClearTargets();
-                target.OnPickup();
+                targetToPickUp.OnPickup();
+            }
+            else
+            {
+                // 3. Debug pickup failure
+                Debug.LogWarning($"[PlayerInteraction] FAILED: Could not pick up {targetToPickUp.Data.itemName}. Check if Inventory reference is missing or full.");
             }
             return;
         }
@@ -116,11 +132,21 @@ public class PlayerInteraction : MonoBehaviour
         // Handle Puzzle Placement
         if (currentReceptorTarget != null)
         {
+            Debug.Log($"[PlayerInteraction] Attempting to interact with receptor: {currentReceptorTarget.gameObject.name}");
+
             if (currentReceptorTarget.TryActivate(playerInventory))
             {
+                Debug.Log($"[PlayerInteraction] SUCCESS: Activated receptor {currentReceptorTarget.gameObject.name}!");
                 ClearTargets();
             }
+            else
+            {
+                Debug.LogWarning($"[PlayerInteraction] FAILED: Could not activate receptor {currentReceptorTarget.gameObject.name}.");
+            }
+            return;
         }
+
+        Debug.Log("[PlayerInteraction] Interact pressed, but no target object or receptor was found in range.");
     }
 
     private void ShowUI(string text)
