@@ -790,7 +790,7 @@ MonoBehaviour:
   openRotationAngle: {x: 90, y: 0, z: 0}
   openSpeed: 1
   autoReset: 1
-  resetDelay: 3
+  resetDelay: 5
   OnTrapdoorOpened:
     m_PersistentCalls:
       m_Calls:
@@ -808,7 +808,19 @@ MonoBehaviour:
         m_CallState: 2
   OnTrapdoorReset:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1094224602}
+        m_TargetAssemblyTypeName: Door, Assembly-CSharp
+        m_MethodName: CloseDoor
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &439337166
 GameObject:
   m_ObjectHideFlags: 0
@@ -4055,13 +4067,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 888801151}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 8.14, y: 2, z: 16.19}
+  m_LocalRotation: {x: -0, y: -0.16392834, z: -0, w: 0.98647225}
+  m_LocalPosition: {x: 5.3069687, y: 2, z: 16.459688}
   m_LocalScale: {x: 2.0513148, y: 2.0513148, z: 2.0513148}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: -18.87, z: 0}
 --- !u!1 &928477061
 GameObject:
   m_ObjectHideFlags: 0
@@ -4681,13 +4693,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1023888846}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 10.15, y: 2.13, z: 15.840001}
+  m_LocalRotation: {x: -0, y: -0.16392834, z: -0, w: 0.98647225}
+  m_LocalPosition: {x: 7.3221364, y: 2.13, z: 16.778566}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: -18.87, z: 0}
 --- !u!114 &1023888851
 MonoBehaviour:
   m_ObjectHideFlags: 0
