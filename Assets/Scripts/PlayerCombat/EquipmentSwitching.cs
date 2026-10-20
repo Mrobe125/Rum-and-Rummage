@@ -7,6 +7,7 @@ public class EquipmentSwap : MonoBehaviour
     [Header("Equipment")]
     [SerializeField] private GameObject sword;
     [SerializeField] private GameObject hook;
+    [SerializeField] private GameObject crosshair;
 
     [Header("Combat")]
     [SerializeField] private PlayerCombat playerCombat;
@@ -53,6 +54,7 @@ public class EquipmentSwap : MonoBehaviour
 
         sword.SetActive(true);
         hook.SetActive(false);
+        crosshair.SetActive(false);
 
         playerCombat.enabled = true;
         hookThrow.enabled = false;
@@ -64,6 +66,7 @@ public class EquipmentSwap : MonoBehaviour
 
         sword.SetActive(false);
         hook.SetActive(true);
+        crosshair.SetActive(true);
 
         playerCombat.enabled = false;
         hookThrow.enabled = true;
