@@ -214,7 +214,7 @@ MonoBehaviour:
   - {fileID: -4979028031205938130}
   - {fileID: -52005847612919286}
   - {fileID: 8269239276271862355}
-  current: {fileID: -52005847612919286}
+  current: {fileID: -710445047415797325}
 --- !u!114 &1745780946725655232
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -261,6 +261,7 @@ MonoBehaviour:
   dialogueSpoken: No thanks
   entry: 0
   exit: 0
+  questImage: {fileID: 0}
 --- !u!114 &2296280613577574752
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -307,6 +308,7 @@ MonoBehaviour:
   dialogueSpoken: Alright
   entry: 0
   exit: 0
+  questImage: {fileID: 21300000, guid: 9146a0a8b096d124e94b08d505de2fcf, type: 3}
 --- !u!114 &8269239276271862355
 MonoBehaviour:
   m_ObjectHideFlags: 0

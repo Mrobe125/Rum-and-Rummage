@@ -9,6 +9,10 @@ public class NPCConversation : MonoBehaviour
     [SerializeField] private TextMeshProUGUI spokenLine;
     [SerializeField] private Transform responseButtonPanel;
     [SerializeField] private GameObject buttonPrefab;
+
+    //Quest panel image
+    [SerializeField] private Image panelImage;
+
     void Start()
     {
        foreach(Node item in dialogue.nodes)
@@ -32,8 +36,17 @@ public class NPCConversation : MonoBehaviour
                 spokenLine.text = dialogue.current.dialogueSpoken;
                 SpawnResponseButtons();
                 break;
+
             case "Response":
                 ClearButtons();
+
+                ResponseDialogue response = dialogue.current as ResponseDialogue;
+                if (response != null && response.questImage != null && panelImage != null)
+                {
+                   panelImage.sprite = response.questImage;
+                   Debug.Log("Quest Accepted UI Updated");
+                }
+
                 NextNode("exit");
                 break;
         }
