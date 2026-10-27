@@ -12,5 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0344944088fef854eb9a79b7d8f0c4a7, type: 3}
   m_Name: GoldenSkull
   m_EditorClassIdentifier: 
+  itemType: 1
   itemName: Golden Skull
+  description: 
   icon: {fileID: 0}
+  canBePickedUpByParrot: 0
