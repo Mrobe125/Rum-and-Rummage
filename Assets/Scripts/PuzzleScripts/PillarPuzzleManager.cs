@@ -16,23 +16,26 @@ public class PillarPuzzleManager : MonoBehaviour
     [SerializeField] private List<PillarTarget> requiredSequence = new List<PillarTarget>();
 
     [Header("Events")]
-    [Tooltip("Fires when all pillars match their target steps.")]
+    [Tooltip("Fires when all pillars match their target steps upon submission.")]
     [SerializeField] private UnityEvent OnPuzzleSolved;
 
     public bool IsSolved { get; private set; } = false;
 
-    public void CheckPuzzleState()
+    /// <summary>
+    /// Validates current pillar states. Returns true if correct, false otherwise.
+    /// </summary>
+    public bool CheckPuzzleState()
     {
-        if (IsSolved) return;
+        if (IsSolved) return true;
 
         foreach (var item in requiredSequence)
         {
             if (item.pillar == null) continue;
 
-            // If any pillar is currently moving or not at target step, return
+            // If any pillar is actively moving or not at its designated target step
             if (item.pillar.IsRotating || item.pillar.CurrentStep != item.targetStep)
             {
-                return;
+                return false;
             }
         }
 
@@ -40,5 +43,6 @@ public class PillarPuzzleManager : MonoBehaviour
         IsSolved = true;
         Debug.Log("[PillarPuzzleManager] Puzzle Solved!");
         OnPuzzleSolved?.Invoke();
+        return true;
     }
 }

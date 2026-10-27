@@ -1,7 +1,7 @@
 using System.Collections;
 using UnityEngine;
 
-public class Pillar : MonoBehaviour
+public class Pillar : MonoBehaviour, IInteractable
 {
     public enum RotationDirection { Clockwise, Counterclockwise }
 
@@ -22,7 +22,6 @@ public class Pillar : MonoBehaviour
 
     private void Awake()
     {
-        // Normalize initial Y rotation relative to starting local Euler angles
         currentYRotation = transform.localEulerAngles.y;
     }
 
@@ -36,15 +35,12 @@ public class Pillar : MonoBehaviour
     {
         if (isRotating) return;
 
-        // Calculate directional multiplier
         float directionSign = (rotationDirection == RotationDirection.Clockwise) ? 1f : -1f;
 
-        // Update Step Counter (0 to 3 for 90-degree steps)
         int totalSteps = Mathf.RoundToInt(360f / stepAngle);
         int stepChange = (rotationDirection == RotationDirection.Clockwise) ? 1 : -1;
         CurrentStep = (CurrentStep + stepChange + totalSteps) % totalSteps;
 
-        // Target rotation calculation
         currentYRotation += stepAngle * directionSign;
         StartCoroutine(AnimateRotation(currentYRotation));
     }

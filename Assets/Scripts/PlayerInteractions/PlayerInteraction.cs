@@ -1,7 +1,7 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using TMPro;
-using System.Collections;
 
 public class PlayerInteraction : MonoBehaviour
 {
@@ -23,11 +23,11 @@ public class PlayerInteraction : MonoBehaviour
 
     [Header("Dependencies")]
     [SerializeField] private Inventory playerInventory;
-    [SerializeField] private PillarPuzzleManager pillarPuzzleManager;
 
+    // Interaction Target References
+    private IInteractable currentInteractableTarget;
     private ItemObject currentItemTarget;
     private PuzzleReceptor currentReceptorTarget;
-    private Pillar currentPillarTarget;
     private DraggableObject currentDraggableTarget;
 
     // Currently dragged object reference
@@ -37,7 +37,6 @@ public class PlayerInteraction : MonoBehaviour
     {
         if (playerCamera == null) playerCamera = Camera.main;
         if (playerInventory == null) playerInventory = GetComponent<Inventory>();
-        if (pillarPuzzleManager == null) pillarPuzzleManager = FindFirstObjectByType<PillarPuzzleManager>();
 
         // Fallback hold position if not assigned
         if (holdPoint == null && playerCamera != null)
@@ -71,7 +70,7 @@ public class PlayerInteraction : MonoBehaviour
 
     private void Update()
     {
-        // If we are holding an object and it drops itself (e.g. pulled too far), clear reference
+        // If holding an object that drops itself (e.g. pulled too far), clear reference
         if (activeDraggedObject != null && !activeDraggedObject.IsBeingDragged)
         {
             activeDraggedObject = null;
@@ -87,7 +86,7 @@ public class PlayerInteraction : MonoBehaviour
 
     private void DetectInteractable()
     {
-        // If currently dragging an object, update UI to prompt release
+        // 1. If currently dragging an object, update UI to prompt release
         if (activeDraggedObject != null)
         {
             ShowUI("Press E to Release Object");
@@ -98,7 +97,7 @@ public class PlayerInteraction : MonoBehaviour
 
         if (Physics.Raycast(ray, out RaycastHit hit, interactDistance, interactableLayer))
         {
-            // 1. Check for Draggable Objects
+            // 2. Check for Draggable Objects
             if (hit.collider.TryGetComponent(out DraggableObject draggable))
             {
                 currentDraggableTarget = draggable;
@@ -107,7 +106,16 @@ public class PlayerInteraction : MonoBehaviour
                 return;
             }
 
-            // 2. Check for Item Pickups
+            // 3. Check for Generic IInteractable objects (Pillars, Levers, Switches, Doors, etc.)
+            if (hit.collider.TryGetComponent(out IInteractable interactable))
+            {
+                currentInteractableTarget = interactable;
+                ClearOtherTargets(exceptInteractable: true);
+                ShowUI(interactable.GetPromptText());
+                return;
+            }
+
+            // 4. Check for Item Pickups
             if (hit.collider.TryGetComponent(out ItemObject itemObject))
             {
                 if (itemObject.Data != null)
@@ -119,7 +127,7 @@ public class PlayerInteraction : MonoBehaviour
                 }
             }
 
-            // 3. Check for Puzzle Receptors
+            // 5. Check for Puzzle Receptors
             if (hit.collider.TryGetComponent(out PuzzleReceptor receptor))
             {
                 if (!receptor.IsSolved)
@@ -129,15 +137,6 @@ public class PlayerInteraction : MonoBehaviour
                     ShowUI(receptor.GetPromptText());
                     return;
                 }
-            }
-
-            // 4. Check for Pillars
-            if (hit.collider.TryGetComponent(out Pillar pillar))
-            {
-                currentPillarTarget = pillar;
-                ClearOtherTargets(exceptPillar: true);
-                ShowUI(pillar.GetPromptText());
-                return;
             }
         }
 
@@ -164,7 +163,15 @@ public class PlayerInteraction : MonoBehaviour
             return;
         }
 
-        // 3. Handle Item Pickup
+        // 3. Handle Interface Interaction (Pillars, Levers, Buttons, etc.)
+        if (currentInteractableTarget != null)
+        {
+            currentInteractableTarget.Interact();
+            ClearTargets();
+            return;
+        }
+
+        // 4. Handle Item Pickup
         if (currentItemTarget != null)
         {
             ItemObject targetToPickUp = currentItemTarget;
@@ -177,7 +184,7 @@ public class PlayerInteraction : MonoBehaviour
             return;
         }
 
-        // 4. Handle Puzzle Placement
+        // 5. Handle Puzzle Placement
         if (currentReceptorTarget != null)
         {
             if (currentReceptorTarget.TryActivate(playerInventory))
@@ -185,31 +192,6 @@ public class PlayerInteraction : MonoBehaviour
                 ClearTargets();
             }
             return;
-        }
-
-        // 5. Handle Pillar Rotation
-        if (currentPillarTarget != null)
-        {
-            if (currentPillarTarget.IsRotating) return;
-
-            Pillar rotatedPillar = currentPillarTarget;
-            rotatedPillar.Interact();
-
-            if (pillarPuzzleManager != null)
-            {
-                StartCoroutine(ValidatePuzzleAfterRotation(rotatedPillar));
-            }
-            return;
-        }
-    }
-
-    private IEnumerator ValidatePuzzleAfterRotation(Pillar pillar)
-    {
-        yield return new WaitUntil(() => !pillar.IsRotating);
-
-        if (pillarPuzzleManager != null)
-        {
-            pillarPuzzleManager.CheckPuzzleState();
         }
     }
 
@@ -222,20 +204,20 @@ public class PlayerInteraction : MonoBehaviour
         }
     }
 
-    private void ClearOtherTargets(bool exceptDraggable = false, bool exceptItem = false, bool exceptReceptor = false, bool exceptPillar = false)
+    private void ClearOtherTargets(bool exceptInteractable = false, bool exceptDraggable = false, bool exceptItem = false, bool exceptReceptor = false)
     {
+        if (!exceptInteractable) currentInteractableTarget = null;
         if (!exceptDraggable) currentDraggableTarget = null;
         if (!exceptItem) currentItemTarget = null;
         if (!exceptReceptor) currentReceptorTarget = null;
-        if (!exceptPillar) currentPillarTarget = null;
     }
 
     private void ClearTargets()
     {
+        currentInteractableTarget = null;
         currentDraggableTarget = null;
         currentItemTarget = null;
         currentReceptorTarget = null;
-        currentPillarTarget = null;
         SetUIVisible(false);
     }
 
