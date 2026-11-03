@@ -381,6 +381,12 @@ MonoBehaviour:
   returnClick: 324
   speed: 15
   squackSound: {fileID: 8300000, guid: f4cee0fc460517a4c8b3f66ce5f81565, type: 3}
+  raycastOrigin: {fileID: 0}
+  raycastDistance: 15
+  itemLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  playerInventory: {fileID: 0}
 --- !u!65 &55174763
 BoxCollider:
   m_ObjectHideFlags: 0
