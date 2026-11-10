@@ -493,8 +493,30 @@
                 },
                 {
                     "name": "",
+                    "id": "992ca218-28e6-4769-b486-be55b3808a60",
+                    "path": "<Keyboard>/1",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "SwapEquipment",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "1377b496-906b-4332-8224-ef4b5e76c6fe",
-                    "path": "<Keyboard>/f",
+                    "path": "<Keyboard>/2",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "SwapEquipment",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "1fa74018-9ef4-4a69-9c6e-609180a7b2e3",
+                    "path": "<Mouse>/middleButton",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
