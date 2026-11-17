@@ -206,12 +206,12 @@ public class Parrot : MonoBehaviour
         }
     }
 
-    private void OnDrawGizmosSelected()
-    {
-        if (raycastOrigin != null)
-        {
-            Gizmos.color = Color.cyan;
-            Gizmos.DrawRay(raycastOrigin.position, raycastOrigin.forward * raycastDistance);
-        }
-    }
+    //private void OnDrawGizmosSelected()
+    //{
+    //    if (raycastOrigin != null)
+    //    {
+    //        Gizmos.color = Color.cyan;
+    //        Gizmos.DrawRay(raycastOrigin.position, raycastOrigin.forward * raycastDistance);
+    //    }
+    //}
 }

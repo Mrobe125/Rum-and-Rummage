@@ -29,6 +29,7 @@ public class PlayerInteraction : MonoBehaviour
     private ItemObject currentItemTarget;
     private PuzzleReceptor currentReceptorTarget;
     private DraggableObject currentDraggableTarget;
+    private NPCInteract currentNPC;
 
     // Currently dragged object reference
     private DraggableObject activeDraggedObject;
@@ -138,6 +139,14 @@ public class PlayerInteraction : MonoBehaviour
                     return;
                 }
             }
+
+            //6. Check for NPC
+            if (hit.collider.TryGetComponent(out NPCInteract npc))
+            {
+                currentNPC = npc;
+                ClearOtherTargets(exceptReceptor: true);
+                return;
+            }
         }
 
         ClearTargets();
@@ -193,6 +202,14 @@ public class PlayerInteraction : MonoBehaviour
             }
             return;
         }
+
+        // 6. Handle NPC
+        if (currentNPC != null)
+        { 
+            currentNPC.StartDialogue();
+            ClearTargets();
+            return;
+        }
     }
 
     private void ShowUI(string text)
@@ -218,6 +235,7 @@ public class PlayerInteraction : MonoBehaviour
         currentDraggableTarget = null;
         currentItemTarget = null;
         currentReceptorTarget = null;
+        currentNPC = null;
         SetUIVisible(false);
     }
 
