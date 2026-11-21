@@ -6,8 +6,11 @@ public class EnemyHealth : MonoBehaviour
     [SerializeField] private EnemyData enemyData;
     [SerializeField] private Renderer enemyRenderer;
     [SerializeField] private float damageFlashDuration = 0.2f;
+    //Coinbag drop stuff
+    [SerializeField] private GameObject coinBagPrefab;
+    [SerializeField] private Transform dropPoint;
 
-    private float currentHealth;
+  private float currentHealth;
     private Color originalColor;
     private Coroutine damageFlashCoroutine;
 
@@ -53,6 +56,15 @@ public class EnemyHealth : MonoBehaviour
     private void Die()
     {
         Debug.Log(enemyData.enemyName + " has died.");
+        //Set Coinbag at corpse spot
+        if (coinBagPrefab != null)
+        {
+          Vector3 spawnPosition = dropPoint != null
+            ? dropPoint.position
+            : transform.position;
+
+          Instantiate(coinBagPrefab, spawnPosition, Quaternion.identity);
+        }
         Destroy(gameObject);
     }
 }

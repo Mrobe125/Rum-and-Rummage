@@ -2,6 +2,9 @@ using UnityEngine;
 
 public class NPCInteract : MonoBehaviour
 {
+  [SerializeField] private NPCConversation conversation;
+  [SerializeField] private DialogueGraph dialogueGraph;
+
   public GameObject dialogPanel;
   public GameObject interactText;
 
@@ -77,6 +80,7 @@ public class NPCInteract : MonoBehaviour
         Debug.Log("Dialogue Started.");
         if (!dialogOpen)
         {
+            conversation.StartConversation(dialogueGraph);
             dialogPanel.SetActive(true);
             interactText.SetActive(false);
 

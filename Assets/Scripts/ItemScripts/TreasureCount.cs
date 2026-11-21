@@ -7,7 +7,7 @@ public class TreasureCount : MonoBehaviour
   public TextMeshProUGUI goldText;
 
   private int gold = 0;
-  private bool collected = false;
+  private bool counting = false;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -15,38 +15,35 @@ public class TreasureCount : MonoBehaviour
       UpdateGoldText();
     }
 
-    // Update is called once per frame
-    void UpdateGoldText()
-    {
-        goldText.text = gold.ToString("000");
-    }
-  // Touch bag detected
-  private void OnTriggerEnter(Collider other)
+  public void AddGold(int amount)
   {
-    if (collected) return;
-
-    if (other.CompareTag("Player"))
+    if (!counting)
     {
-      collected = true;
-
-      // Hiding/Disable these for now to continue count
-      GetComponent<Renderer>().enabled = false;
-      GetComponent<Collider>().enabled = false;
-
-      StartCoroutine(CountTreasure());
+      StartCoroutine(CountTreasure(amount));
     }
   }
 
-  IEnumerator CountTreasure()
+  private IEnumerator CountTreasure(int amount)
   {
-    int targetGold = gold + 100;
-
-    while (gold < targetGold)
+    counting = true;
+    int targetGold = gold + amount;
+    
+    while (gold  < targetGold)
     {
       gold++;
       UpdateGoldText();
 
       yield return new WaitForSeconds(0.02f);
     }
+    counting = false;
   }
+
+    // Update is called once per frame
+    private void UpdateGoldText()
+    {
+      if (goldText != null)
+      {
+        goldText.text = gold.ToString("000");
+      }
+    }
 }

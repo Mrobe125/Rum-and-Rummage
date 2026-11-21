@@ -5,26 +5,31 @@ using UnityEngine.UI;
 
 public class NPCConversation : MonoBehaviour
 {
-    [SerializeField] private DialogueGraph dialogue;
+    private DialogueGraph dialogue;
     [SerializeField] private TextMeshProUGUI spokenLine;
     [SerializeField] private Transform responseButtonPanel;
     [SerializeField] private GameObject buttonPrefab;
+  
 
     //Quest panel image
     [SerializeField] private Image panelImage;
 
-    void Start()
+   public void StartConversation(DialogueGraph graph)
+  {
+    dialogue = graph;
+
+    foreach (Node item in dialogue.nodes)
     {
-       foreach(Node item in dialogue.nodes)
-        {
-            if(item is EntryNode)
-            {
-                dialogue.current = item.GetPort("exit").Connection.node as DialogueNodeBase;
-                break;
-            }
-        }
-        ParseNode();
+      if (item is EntryNode)
+      {
+        dialogue.current = item.GetPort("exit").Connection.node as DialogueNodeBase;
+        break;
+      }
     }
+
+    ClearButtons();
+    ParseNode();
+  }
 
     private void ParseNode()
     {
