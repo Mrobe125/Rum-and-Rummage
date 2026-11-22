@@ -12990,6 +12990,7 @@ MonoBehaviour:
   responseButtonPanel: {fileID: 168459683}
   buttonPrefab: {fileID: 7240451853410456111, guid: 6e8ae427d6c0f8449aad66db43af9a06, type: 3}
   panelImage: {fileID: 30144564}
+  treasureCount: {fileID: 423533600}
 --- !u!135 &804250403
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -29571,6 +29572,7 @@ MonoBehaviour:
   responseButtonPanel: {fileID: 168459683}
   buttonPrefab: {fileID: 7240451853410456111, guid: 6e8ae427d6c0f8449aad66db43af9a06, type: 3}
   panelImage: {fileID: 30144564}
+  treasureCount: {fileID: 423533600}
 --- !u!136 &1874723226
 CapsuleCollider:
   m_ObjectHideFlags: 0
