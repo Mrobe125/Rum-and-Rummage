@@ -2,6 +2,9 @@ using UnityEngine;
 
 public class NPCInteract : MonoBehaviour
 {
+  [SerializeField] private NPCConversation conversation;
+  [SerializeField] private DialogueGraph dialogueGraph;
+
   public GameObject dialogPanel;
   public GameObject interactText;
 
@@ -22,32 +25,32 @@ public class NPCInteract : MonoBehaviour
     
     private void Update()
     {
-        if(playerInRange && Input.GetKeyDown(KeyCode.E))
-        {
-            if (!dialogOpen)
-            {
-              dialogPanel.SetActive(true);
-              interactText.SetActive(false);
+        //if(Input.GetKeyDown(KeyCode.E))
+        //{
+        //    if (!dialogOpen)
+        //    {
+        //      dialogPanel.SetActive(true);
+        //      interactText.SetActive(false);
 
-              playerController.enabled = false;
+        //      playerController.enabled = false;
 
-              Cursor.lockState = CursorLockMode.None;
-              Cursor.visible = true;
+        //      Cursor.lockState = CursorLockMode.None;
+        //      Cursor.visible = true;
 
-              dialogOpen = true;
-            }
-            else
-            {
-              dialogPanel.SetActive(false);
+        //      dialogOpen = true;
+        //    }
+        //    else
+        //    {
+        //      dialogPanel.SetActive(false);
 
-              playerController.enabled = true;
+        //      playerController.enabled = true;
 
-              Cursor.lockState = CursorLockMode.Locked;
-              Cursor.visible = false;
+        //      Cursor.lockState = CursorLockMode.Locked;
+        //      Cursor.visible = false;
 
-              dialogOpen = false;
-            }
-        }
+        //      dialogOpen = false;
+        //    }
+        //}
     }
 
   private void OnTriggerEnter(Collider other)
@@ -71,4 +74,33 @@ public class NPCInteract : MonoBehaviour
       interactText.SetActive(false);
     }
   }
+
+    public void StartDialogue()
+    {
+        Debug.Log("Dialogue Started.");
+        if (!dialogOpen)
+        {
+            conversation.StartConversation(dialogueGraph);
+            dialogPanel.SetActive(true);
+            interactText.SetActive(false);
+
+            playerController.enabled = false;
+
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+
+            dialogOpen = true;
+        }
+        else
+        {
+            dialogPanel.SetActive(false);
+
+            playerController.enabled = true;
+
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+
+            dialogOpen = false;
+        }
+    }
 }

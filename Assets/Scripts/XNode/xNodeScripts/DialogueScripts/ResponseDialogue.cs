@@ -1,15 +1,26 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using XNode;
 
 public class ResponseDialogue : DialogueNodeBase
 {
-  [Input(typeConstraint = TypeConstraint.Strict)] public int entry;
-  [Output(connectionType = ConnectionType.Override)] public bool exit;
+  [Input(typeConstraint = TypeConstraint.Strict)]
+  public int entry;
+
+  [Output(connectionType = ConnectionType.Override)]
+  public bool exit;
 
   [Header("No Quest if left blank")]
   public Sprite questImage;
 
-  public override string GetDialogueType { get { return "Response"; } }
+  [Header("Purchase Settings")]
+  public bool isPurchase;
+  public int goldCost;
+
+  [Output(connectionType = ConnectionType.Override)]
+  public bool insufficientFunds;
+
+  public override string GetDialogueType
+  {
+    get { return "Response"; }
+  }
 }
