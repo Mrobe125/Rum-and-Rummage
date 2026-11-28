@@ -6,6 +6,10 @@ public class EnemyAIController : MonoBehaviour
 {
     public enum AIState { Patrol, Chase, Attack, Search }
 
+    [Header("Stats")]
+    public EnemyStats stats;
+
+
     [Header("Configuration")]
     public AIState currentState = AIState.Patrol;
     public bool canPatrol = true; // False for Charging Beasts
@@ -26,6 +30,16 @@ public class EnemyAIController : MonoBehaviour
     {
         agent = GetComponent<NavMeshAgent>();
         player = GameObject.FindGameObjectWithTag("Player")?.transform;
+
+        if (stats != null)
+        {
+            canPatrol = stats.canPatrol;
+            detectionRange = stats.detectionRange;
+            attackRange = stats.attackRange;
+            searchDuration = stats.searchDuration;
+            agent.speed = stats.moveSpeed;
+        }
+
         currentState = canPatrol ? AIState.Patrol : AIState.Search;
     }
 
